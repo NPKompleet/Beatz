@@ -25,9 +25,9 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   static const Color iconColor = Colors.deepOrangeAccent;
 
   AnimationController _animationController;
-  List<AudioMedia> albumSongsList = [];
-  OverlayState overlayState;
-  OverlayEntry overlayEntry;
+  List<AudioMedia> _albumSongsList = [];
+  OverlayState _overlayState;
+  OverlayEntry _overlayEntry;
 
   @override
   initState() {
@@ -39,30 +39,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
         lowerBound: -0.2,
         upperBound: 0.0)
       ..forward();
-  }
-
-  void _showSongsList(BuildContext context) {
-    overlayState = Overlay.of(context);
-    overlayEntry = OverlayEntry(
-        builder: (context) => AspectRatio(
-              aspectRatio: 1.0,
-              child: ClipPath(
-                clipper: SongListClipper(
-                    screenWidth: MediaQuery.of(context).size.width,
-                    padding: 8.0),
-                child: OverflowBox(
-                  alignment: Alignment.center,
-                  maxWidth: MediaQuery.of(context).size.width + 100.0,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width + 100.0,
-                    child: CircleAvatar(),
-                  ),
-                ),
-              ),
-            ));
-    overlayState.insert(overlayEntry);
-//    await Future.delayed(Duration(seconds: 2));
-//    overlayEntry.remove();
   }
 
   @override
@@ -221,7 +197,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
           await platform.invokeMethod(fetchSongsFromAlbumMethod, albumInfo);
       print("Songs: $result");
       Iterable message = json.decode(result);
-      message.forEach((e) => albumSongsList.add(AudioMedia.fromJson(e)));
+      message.forEach((e) => _albumSongsList.add(AudioMedia.fromJson(e)));
     } on PlatformException catch (e) {
       print(e);
     }
@@ -230,10 +206,67 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     setState(() {});
   }
 
+  void _showSongsList(BuildContext context) {
+    _overlayState = Overlay.of(context);
+    _overlayEntry = OverlayEntry(
+        builder: (context) => AspectRatio(
+              aspectRatio: 1.0,
+              child: GestureDetector(
+                onHorizontalDragUpdate: (_) => _removeOverlay(),
+                child: ClipPath(
+                  clipper: SongListClipper(
+                      screenWidth: MediaQuery.of(context).size.width,
+                      padding: 8.0),
+                  child: OverflowBox(
+                    alignment: Alignment.center,
+                    maxWidth: MediaQuery.of(context).size.width + 100.0,
+                    child: Container(
+                      width: MediaQuery.of(context).size.width + 100.0,
+                      child: CircleAvatar(
+                        child: _buildSongList(context),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ));
+    _overlayState.insert(_overlayEntry);
+  }
+
+  Widget _buildSongList(BuildContext context) {
+    return Container(
+//      color: Colors.green,
+      height: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.symmetric(horizontal: 100.0),
+      child: Center(
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _albumSongsList.length,
+            itemBuilder: (context, index) {
+              AudioMedia media = _albumSongsList[index];
+              return Column(
+                children: <Widget>[
+                  Divider(
+                    height: 10.0,
+                    color: Colors.white70,
+                  ),
+                  Text(
+                    media.displayName,
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                ],
+              );
+            }),
+      ),
+    );
+  }
+
+  void _removeOverlay() => _overlayEntry.remove();
+
   @override
   void dispose() {
     _animationController.dispose();
-    overlayEntry?.remove();
+    _overlayEntry.remove();
     super.dispose();
   }
 }

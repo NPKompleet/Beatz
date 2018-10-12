@@ -11,12 +11,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  AnimationController controller;
+//  AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-//    controller = AnimationController(
+//    _controller = AnimationController(
 //        lowerBound: 0.0,
 //        upperBound: 220.0,
 //        duration: Duration(milliseconds: 1500),
@@ -73,11 +73,6 @@ class _HomePageState extends State<HomePage>
                 ),
               ],
             ),
-//            floatingActionButton: FloatingActionButton(
-//              onPressed: () {},
-//              tooltip: 'Increment',
-//              child: Icon(Icons.add),
-//            ),
           ),
         ),
       ],

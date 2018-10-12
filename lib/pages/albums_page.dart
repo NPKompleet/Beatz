@@ -17,7 +17,7 @@ class AlbumsPage extends StatefulWidget {
 
 class _AlbumsPageState extends State<AlbumsPage> {
   String _fetchedAlbums = 'No albums';
-  List<Album> albumList = [];
+  List<Album> _albumList = [];
 
   @override
   void initState() {
@@ -28,9 +28,9 @@ class _AlbumsPageState extends State<AlbumsPage> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: albumList.length,
+      itemCount: _albumList.length,
       itemBuilder: (context, index) {
-        Album album = albumList[index];
+        Album album = _albumList[index];
         return GestureDetector(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -89,7 +89,7 @@ class _AlbumsPageState extends State<AlbumsPage> {
       context,
       MaterialPageRoute(
         builder: (context) => CurrentPlayingPage(
-              album: albumList[index],
+              album: _albumList[index],
             ),
       ),
     );
@@ -101,7 +101,7 @@ class _AlbumsPageState extends State<AlbumsPage> {
       final result = await platform.invokeMethod(fetchAlbumMethod);
       //albums = 'Albums: $result';
       Iterable message = json.decode(result);
-      message.forEach((e) => albumList.add(Album.fromJson(e)));
+      message.forEach((e) => _albumList.add(Album.fromJson(e)));
     } on PlatformException catch (e) {
       //albums = "Failed to fetch albums: '${e.message}'.";
       print(e);
@@ -112,7 +112,7 @@ class _AlbumsPageState extends State<AlbumsPage> {
     });
 
     print(_fetchedAlbums);
-    print('album list: ${albumList.length}');
+    print('album list: ${_albumList.length}');
 
     Directory appDocDir = await getExternalStorageDirectory();
     String appDocPath = appDocDir.path;
