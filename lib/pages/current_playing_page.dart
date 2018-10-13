@@ -235,7 +235,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   Widget _buildSongList(BuildContext context) {
     return Container(
-//      color: Colors.green,
       height: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(horizontal: 100.0),
       child: Center(

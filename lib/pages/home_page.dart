@@ -1,3 +1,5 @@
+import 'package:beatz/blocs/albums_page_bloc.dart';
+import 'package:beatz/blocs/bloc_provider.dart';
 import 'package:beatz/pages/albums_page.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +57,10 @@ class _HomePageState extends State<HomePage>
         ),
         Expanded(
           child: Scaffold(
-            body: AlbumsPage(),
+            body: BlocProvider<AlbumsPageBloc>(
+              bloc: AlbumsPageBloc(),
+              child: AlbumsPage(),
+            ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: 0,
               items: [
