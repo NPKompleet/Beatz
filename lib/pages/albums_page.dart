@@ -1,5 +1,6 @@
 import 'package:beatz/blocs/albums_page_bloc.dart';
 import 'package:beatz/blocs/bloc_provider.dart';
+import 'package:beatz/blocs/current_playing_bloc.dart';
 import 'package:beatz/models/album.dart';
 import 'package:beatz/pages/current_playing_page.dart';
 import 'package:beatz/widgets/record_widget.dart';
@@ -11,9 +12,11 @@ class AlbumsPage extends StatelessWidget {
     final AlbumsPageBloc bloc = BlocProvider.of<AlbumsPageBloc>(context);
     return StreamBuilder<List<Album>>(
       stream: bloc.albumListStream,
-      initialData: null,
       builder: (BuildContext context, AsyncSnapshot<List<Album>> snapshot) {
-        if (!snapshot.hasData) return Container();
+        if (!snapshot.hasData)
+          return Container(
+            child: Center(child: Text("Loading Albums....")),
+          );
         return ListView.builder(
           itemCount: snapshot.data.length,
           itemBuilder: (context, index) {
@@ -76,11 +79,14 @@ class AlbumsPage extends StatelessWidget {
   void _navigateToCurrentPlaying(BuildContext context, Album album) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => CurrentPlayingPage(
-              album: album,
-            ),
-      ),
+      MaterialPageRoute(builder: (context) {
+        return BlocProvider<CurrentPlayingBloc>(
+          bloc: CurrentPlayingBloc(album.id),
+          child: CurrentPlayingPage(
+            album: album,
+          ),
+        );
+      }),
     );
   }
 }

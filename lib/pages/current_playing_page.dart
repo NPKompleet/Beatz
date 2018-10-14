@@ -1,14 +1,11 @@
-import 'dart:async';
-import 'dart:convert';
-
+import 'package:beatz/blocs/bloc_provider.dart';
+import 'package:beatz/blocs/current_playing_bloc.dart';
 import 'package:beatz/models/album.dart';
 import 'package:beatz/models/audio_media.dart';
-import 'package:beatz/utils/platform_utils.dart';
 import 'package:beatz/widgets/needle_widget.dart';
 import 'package:beatz/widgets/record_widget.dart';
 import 'package:beatz/widgets/song_list_clipper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class CurrentPlayingPage extends StatefulWidget {
   final Album album;
@@ -32,7 +29,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   @override
   initState() {
     super.initState();
-    _fetchSongsFromAlbum();
+//    _fetchSongsFromAlbum();
     _animationController = AnimationController(
         duration: Duration(milliseconds: 1500),
         vsync: this,
@@ -98,78 +95,86 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   }
 
   Widget _buildPlaybackControls() {
+    final CurrentPlayingBloc bloc =
+        BlocProvider.of<CurrentPlayingBloc>(context);
     return Positioned(
       bottom: 0.0,
       child: Container(
         width: MediaQuery.of(context).size.width,
         height: 150.0,
         color: Colors.white,
-        child: Column(
-          children: <Widget>[
-            Slider(
-              value: 0.0,
-              onChanged: (_) {},
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: StreamBuilder<List<AudioMedia>>(
+            stream: bloc.albumSongsListStream,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<AudioMedia>> snapshot) {
+              bool data = snapshot.hasData && snapshot.data.isNotEmpty;
+              return Column(
                 children: <Widget>[
-                  Text("0:00"),
-                  Text("4:32"),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.repeat),
-                    onPressed: () {},
-                    iconSize: iconSize,
-                    color: iconColor,
+                  Slider(
+                    value: 0.0,
+                    onChanged: data ? (value) {} : null,
                   ),
-                  IconButton(
-                      onPressed: () {},
-                      icon: ImageIcon(
-                        AssetImage('assets/rewind.png'),
-                        size: iconSize,
-                        color: iconColor,
-                      )),
-                  CircleAvatar(
-                    backgroundColor: iconColor,
-                    radius: 30.0,
-                    child: Center(
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.play_arrow,
-                          size: iconSize,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {},
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text("0:00"),
+                        Text("0:00"),
+                      ],
                     ),
                   ),
-                  IconButton(
-                      onPressed: () {},
-                      icon: ImageIcon(
-                        AssetImage('assets/forward.png'),
-                        size: iconSize,
-                        color: iconColor,
-                      )),
-                  IconButton(
-                    icon: Icon(Icons.favorite_border),
-                    onPressed: () {},
-                    iconSize: iconSize,
-                    color: iconColor,
-                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.repeat),
+                          onPressed: data ? () {} : null,
+                          iconSize: iconSize,
+                          color: iconColor,
+                        ),
+                        IconButton(
+                            onPressed: data ? () {} : null,
+                            icon: ImageIcon(
+                              AssetImage('assets/rewind.png'),
+                              size: iconSize,
+                              color: iconColor,
+                            )),
+                        CircleAvatar(
+                          backgroundColor: iconColor,
+                          radius: 30.0,
+                          child: Center(
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.play_arrow,
+                                size: iconSize,
+                                color: Colors.white,
+                              ),
+                              onPressed: data ? () {} : null,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: data ? () {} : null,
+                            icon: ImageIcon(
+                              AssetImage('assets/forward.png'),
+                              size: iconSize,
+                              color: iconColor,
+                            )),
+                        IconButton(
+                          icon: Icon(Icons.favorite_border),
+                          onPressed: data ? () {} : null,
+                          iconSize: iconSize,
+                          color: iconColor,
+                        ),
+                      ],
+                    ),
+                  )
                 ],
-              ),
-            )
-          ],
-        ),
+              );
+            }),
       ),
     );
   }
@@ -189,22 +194,22 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     );
   }
 
-  Future<Null> _fetchSongsFromAlbum() async {
-    Map<String, int> albumInfo = {"albumId": widget.album.id};
-    print("AlbumID: ${widget.album.id}");
-    try {
-      final result =
-          await platform.invokeMethod(fetchSongsFromAlbumMethod, albumInfo);
-      print("Songs: $result");
-      Iterable message = json.decode(result);
-      message.forEach((e) => _albumSongsList.add(AudioMedia.fromJson(e)));
-    } on PlatformException catch (e) {
-      print(e);
-    }
-
-    // Refresh
-    setState(() {});
-  }
+//  Future<Null> _fetchSongsFromAlbum() async {
+//    Map<String, int> albumInfo = {"albumId": widget.album.id};
+//    print("AlbumID: ${widget.album.id}");
+//    try {
+//      final result =
+//          await platform.invokeMethod(fetchSongsFromAlbumMethod, albumInfo);
+//      print("Songs: $result");
+//      Iterable message = json.decode(result);
+//      message.forEach((e) => _albumSongsList.add(AudioMedia.fromJson(e)));
+//    } on PlatformException catch (e) {
+//      print(e);
+//    }
+//
+//    // Refresh
+//    setState(() {});
+//  }
 
   void _showSongsList(BuildContext context) {
     _overlayState = Overlay.of(context);
@@ -260,12 +265,12 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     );
   }
 
-  void _removeOverlay() => _overlayEntry.remove();
+  void _removeOverlay() => _overlayEntry?.remove();
 
   @override
   void dispose() {
     _animationController.dispose();
-    _overlayEntry.remove();
+    _removeOverlay();
     super.dispose();
   }
 }

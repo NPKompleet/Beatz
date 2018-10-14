@@ -6,6 +6,7 @@ class SongListClipper extends CustomClipper<Path> {
 
   SongListClipper({this.screenWidth, this.padding});
 
+  /// Draw a square clip shape
   @override
   Path getClip(Size size) {
     var path = new Path();

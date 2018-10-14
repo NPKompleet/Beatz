@@ -13,17 +13,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-//  AnimationController _controller;
+  AnimationController _controller;
+  Animation<double> _heightAnimation;
 
   @override
   void initState() {
     super.initState();
-//    _controller = AnimationController(
-//        lowerBound: 0.0,
-//        upperBound: 220.0,
-//        duration: Duration(milliseconds: 1500),
-//        vsync: this)
-//      ..forward();
+    _controller = AnimationController(
+        duration: Duration(milliseconds: 4000), vsync: this);
+    _heightAnimation =
+        Tween<double>(begin: 0.0, end: 220.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+    ));
+    _controller.forward();
   }
 
   @override
@@ -31,30 +34,34 @@ class _HomePageState extends State<HomePage>
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Container(
-          height: 220.0,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepOrangeAccent,
-                Colors.purple,
-              ],
-              begin: FractionalOffset(1.2, 0.4),
-              end: FractionalOffset(-0.3, 0.8),
-              stops: [0.0, 1.0],
-            ),
-          ),
-          child: Center(
-            child: CircleAvatar(
-              radius: 65.0,
-              child: Image(
-                image: AssetImage("assets/headphones.png"),
-                fit: BoxFit.fill,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
+        AnimatedBuilder(
+            animation: _controller,
+            builder: (_, __) {
+              return Container(
+                height: _heightAnimation.value,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.deepOrangeAccent,
+                      Colors.purple,
+                    ],
+                    begin: FractionalOffset(1.2, 0.4),
+                    end: FractionalOffset(-0.3, 0.8),
+                    stops: [0.0, 1.0],
+                  ),
+                ),
+                child: Center(
+                  child: CircleAvatar(
+                    radius: 65.0,
+                    child: Image(
+                      image: AssetImage("assets/headphones.png"),
+                      fit: BoxFit.fill,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            }),
         Expanded(
           child: Scaffold(
             body: BlocProvider<AlbumsPageBloc>(

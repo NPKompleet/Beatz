@@ -1,9 +1,12 @@
 package com.npkompleet.beatz;
 
+import android.Manifest;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.Media;
 import android.provider.MediaStore.Audio.Albums;
@@ -35,7 +38,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
-
+        
         new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
                 new MethodChannel.MethodCallHandler() {
                     @Override
