@@ -26,8 +26,8 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   List<AudioMedia> _albumSongsList = [];
   OverlayState _overlayState;
   OverlayEntry _overlayEntry;
-
   CurrentPlayingBloc _bloc;
+  final _playState = ValueNotifier<String>("");
 
   @override
   initState() {
@@ -167,20 +167,26 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               size: iconSize,
                               color: iconColor,
                             )),
-                        CircleAvatar(
-                          backgroundColor: iconColor,
-                          radius: 30.0,
-                          child: Center(
-                            child: IconButton(
-                              icon: Icon(
-                                Icons.play_arrow,
-                                size: iconSize,
-                                color: Colors.white,
-                              ),
-                              onPressed: data ? _playSongs : null,
-                            ),
-                          ),
-                        ),
+                        ValueListenableBuilder<String>(
+                            valueListenable: _playState,
+                            builder: (_, value, __) {
+                              return CircleAvatar(
+                                backgroundColor: iconColor,
+                                radius: 30.0,
+                                child: Center(
+                                  child: IconButton(
+                                    icon: Icon(
+                                      value == "play"
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      size: iconSize,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: data ? _playSongs : null,
+                                  ),
+                                ),
+                              );
+                            }),
                         IconButton(
                             onPressed: data ? () {} : null,
                             icon: ImageIcon(
@@ -278,6 +284,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   void _playSongs() {
     _needleAnimCtrl.forward();
     _bloc.startSong.add(0);
+    _playState.value = "play";
   }
 
   @override
