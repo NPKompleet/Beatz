@@ -35,7 +35,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     _recordAnimCtrl = AnimationController(
         duration: Duration(milliseconds: 4000), vsync: this);
     _needleAnimCtrl = AnimationController(
-        duration: Duration(milliseconds: 1500),
+        duration: Duration(milliseconds: 1000),
         vsync: this,
         lowerBound: -0.2,
         upperBound: 0.0)
@@ -122,22 +122,33 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
               bool data = snapshot.hasData && snapshot.data.isNotEmpty;
               return Column(
                 children: <Widget>[
-                  Slider(
-                    value: 0.0,
-                    min: 0.0,
-                    max: 0.0,
-                    onChanged: data ? (value) {} : null,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text("0:00"),
-                        Text("0:00"),
-                      ],
-                    ),
-                  ),
+                  StreamBuilder<AudioMedia>(
+                      stream: _bloc.uiStream,
+                      builder: (context, snapshot) {
+                        bool slidData = snapshot.hasData;
+                        return Column(
+                          children: <Widget>[
+                            Slider(
+                              value: 0.0,
+                              min: 0.0,
+                              max: slidData ? 1.0 : 0.0,
+                              onChanged: data ? (value) {} : null,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text("0:00"),
+                                  Text("0:00"),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: Row(

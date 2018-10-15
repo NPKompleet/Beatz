@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.Media;
@@ -20,6 +22,7 @@ import com.google.gson.Gson;
 import com.npkompleet.beatz.models.Album;
 import com.npkompleet.beatz.models.AudioMedia;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,6 +42,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private static final int REQUEST_EXTERNAL_STORAGE= 200;
     Result channelResult;
     Loader loader;
+    MediaPlayer mPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +82,8 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 fetchSongsFromAlbum(b);
                 break;
             case PLAY_SONG:
+                HashMap<String, String> songArg= (HashMap<String, String>) call.arguments;
+                playSong(songArg.get("songUrl"));
                 break;
         }
     }
@@ -163,7 +169,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                         media.setArtist(cursor.getString(3));
                         media.setDuration(cursor.getLong(4));
                         media.setTrack(cursor.getInt(5));
-                        media.setUrl(cursor.getString(6));
+                        media.setUri(cursor.getString(6));
                         media.setType(cursor.getString(7));
 
                         // Add media to list
@@ -179,6 +185,27 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    private void playSong(String uri){
+        if (mPlayer == null) {
+            mPlayer = new MediaPlayer();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            try {
+                mPlayer.setDataSource(uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mPlayer.prepareAsync();
+        }
+
+        mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                channelResult.success("success");
+            }
+        });
     }
 
 
@@ -201,5 +228,12 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 }
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        // Release resources when done using app
+        if (mPlayer != null) mPlayer.release();
+        super.onStop();
     }
 }

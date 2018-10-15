@@ -20,6 +20,11 @@ class CurrentPlayingBloc extends BlocBase {
   StreamSink get startSong => _playController.sink;
   Stream get _playSong => _playController.stream;
 
+  /// Stream to handle updating slider
+  StreamController<AudioMedia> _uiController = StreamController<AudioMedia>();
+  StreamSink<AudioMedia> get _uiSink => _uiController.sink;
+  Stream<AudioMedia> get uiStream => _uiController.stream;
+
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
@@ -32,11 +37,14 @@ class CurrentPlayingBloc extends BlocBase {
 
   Future<Null> _startPlaying(data) {
     print('playback started');
+    _uiController.add(_albumSongsList[0]);
+    PlatformService.playSong(_albumSongsList[0].uri);
   }
 
   @override
   void dispose() {
     _listController.close();
     _playController.close();
+    _uiController.close();
   }
 }

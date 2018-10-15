@@ -7,7 +7,7 @@ public class AudioMedia {
     private String artist;
     private long duration;
     private int track;
-    private String url;
+    private String uri;
     private String type;
 
     public AudioMedia() {
@@ -61,12 +61,12 @@ public class AudioMedia {
         this.track = track;
     }
 
-    public String getUrl() {
-        return url;
+    public String getUri() {
+        return uri;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public String getType() {
