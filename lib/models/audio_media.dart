@@ -5,9 +5,11 @@ class AudioMedia {
   String artist;
   int duration;
   int track;
+  String url;
+  String type;
 
   AudioMedia(this.id, this.title, this.displayName, this.artist, this.duration,
-      this.track);
+      this.track, this.url, this.type);
 
   AudioMedia.fromJson(Map<String, dynamic> json) {
     artist = json['artist'];
@@ -16,6 +18,8 @@ class AudioMedia {
     id = json['id'];
     title = json['title'];
     track = json['track'];
+    url = json['url'];
+    type = json['type'];
   }
 
   Map<String, dynamic> toJson() {
@@ -26,6 +30,8 @@ class AudioMedia {
     data['id'] = this.id;
     data['title'] = this.title;
     data['track'] = this.track;
+    data['url'] = this.url;
+    data['type'] = this.type;
     return data;
   }
 }

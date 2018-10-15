@@ -17,25 +17,35 @@ class CurrentPlayingPage extends StatefulWidget {
 }
 
 class _CurrentPlayingPageState extends State<CurrentPlayingPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static const double iconSize = 35.0;
   static const Color iconColor = Colors.deepOrangeAccent;
 
-  AnimationController _animationController;
+  AnimationController _needleAnimCtrl;
+  AnimationController _recordAnimCtrl;
   List<AudioMedia> _albumSongsList = [];
   OverlayState _overlayState;
   OverlayEntry _overlayEntry;
 
+  CurrentPlayingBloc _bloc;
+
   @override
   initState() {
     super.initState();
-//    _fetchSongsFromAlbum();
-    _animationController = AnimationController(
+    _recordAnimCtrl = AnimationController(
+        duration: Duration(milliseconds: 4000), vsync: this);
+    _needleAnimCtrl = AnimationController(
         duration: Duration(milliseconds: 1500),
         vsync: this,
         lowerBound: -0.2,
         upperBound: 0.0)
-      ..forward();
+      ..addStatusListener((status) => _startRecordAnimation(status));
+  }
+
+  // Starts animating the Record Widget as soon as
+  // the needle animation is completed.
+  void _startRecordAnimation(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _recordAnimCtrl.repeat();
   }
 
   @override
@@ -62,14 +72,17 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     return Positioned(
       top: 150.0,
       child: GestureDetector(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          alignment: Alignment.center,
-          child: Hero(
-            tag: "${widget.album.id}",
-            child: RecordWidget(
-              diameter: 260.0,
-              albumArt: widget.album.albumArt,
+        child: RotationTransition(
+          turns: _recordAnimCtrl,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.center,
+            child: Hero(
+              tag: "${widget.album.id}",
+              child: RecordWidget(
+                diameter: 260.0,
+                albumArt: widget.album.albumArt,
+              ),
             ),
           ),
         ),
@@ -83,7 +96,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
       top: 100.0,
       right: 0.0,
       child: RotationTransition(
-        turns: _animationController,
+        turns: _needleAnimCtrl,
         // To make the needle swivel around the white circle
         // the alignment is placed placed at the center of the white circle
         alignment: FractionalOffset(4 / 5, 1 / 6),
@@ -95,8 +108,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   }
 
   Widget _buildPlaybackControls() {
-    final CurrentPlayingBloc bloc =
-        BlocProvider.of<CurrentPlayingBloc>(context);
+    _bloc = BlocProvider.of<CurrentPlayingBloc>(context);
     return Positioned(
       bottom: 0.0,
       child: Container(
@@ -104,7 +116,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
         height: 150.0,
         color: Colors.white,
         child: StreamBuilder<List<AudioMedia>>(
-            stream: bloc.albumSongsListStream,
+            stream: _bloc.albumSongsListStream,
             builder: (BuildContext context,
                 AsyncSnapshot<List<AudioMedia>> snapshot) {
               bool data = snapshot.hasData && snapshot.data.isNotEmpty;
@@ -112,6 +124,8 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                 children: <Widget>[
                   Slider(
                     value: 0.0,
+                    min: 0.0,
+                    max: 0.0,
                     onChanged: data ? (value) {} : null,
                   ),
                   Padding(
@@ -152,7 +166,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                                 size: iconSize,
                                 color: Colors.white,
                               ),
-                              onPressed: data ? () {} : null,
+                              onPressed: data ? _playSongs : null,
                             ),
                           ),
                         ),
@@ -193,23 +207,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
       ),
     );
   }
-
-//  Future<Null> _fetchSongsFromAlbum() async {
-//    Map<String, int> albumInfo = {"albumId": widget.album.id};
-//    print("AlbumID: ${widget.album.id}");
-//    try {
-//      final result =
-//          await platform.invokeMethod(fetchSongsFromAlbumMethod, albumInfo);
-//      print("Songs: $result");
-//      Iterable message = json.decode(result);
-//      message.forEach((e) => _albumSongsList.add(AudioMedia.fromJson(e)));
-//    } on PlatformException catch (e) {
-//      print(e);
-//    }
-//
-//    // Refresh
-//    setState(() {});
-//  }
 
   void _showSongsList(BuildContext context) {
     _overlayState = Overlay.of(context);
@@ -267,9 +264,15 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   void _removeOverlay() => _overlayEntry?.remove();
 
+  void _playSongs() {
+    _needleAnimCtrl.forward();
+    _bloc.startSong.add(0);
+  }
+
   @override
   void dispose() {
-    _animationController.dispose();
+    _needleAnimCtrl.dispose();
+    _recordAnimCtrl.dispose();
     _removeOverlay();
     super.dispose();
   }

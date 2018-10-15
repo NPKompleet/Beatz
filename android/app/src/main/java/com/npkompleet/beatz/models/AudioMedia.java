@@ -7,6 +7,8 @@ public class AudioMedia {
     private String artist;
     private long duration;
     private int track;
+    private String url;
+    private String type;
 
     public AudioMedia() {
     }
@@ -57,5 +59,21 @@ public class AudioMedia {
 
     public void setTrack(int track) {
         this.track = track;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

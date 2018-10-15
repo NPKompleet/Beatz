@@ -1,8 +1,10 @@
 package com.npkompleet.beatz;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,6 +12,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.Media;
 import android.provider.MediaStore.Audio.Albums;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -29,8 +33,10 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private static final String CHANNEL = "com.npkompleet.beatz";
     private static final String FETCH_ALBUMS_METHOD = "fetchAlbums";
     private static final String FETCH_SONGS_FROM_ALBUM_METHOD = "fetchSongsFromAlbum";
+    private static final String PLAY_SONG = "play";
     private static final int ALBUM_LIST_LOADER_ID = 100;
     private static final int ALBUM_SONGS_LIST_LOADER_ID = 101;
+    private static final int REQUEST_EXTERNAL_STORAGE= 200;
     Result channelResult;
     Loader loader;
 
@@ -38,7 +44,17 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GeneratedPluginRegistrant.registerWith(this);
-        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_EXTERNAL_STORAGE);
+            }
+        }
+        setUpMethodChannel();
+    }
+
+    private void setUpMethodChannel(){
         new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
                 new MethodChannel.MethodCallHandler() {
                     @Override
@@ -50,14 +66,19 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     }
 
     private void handleMethodCall(MethodCall call, Result result){
-        if (call.method.equals(FETCH_ALBUMS_METHOD)){
-            fetchAlbums();
-        }else if (call.method.equals(FETCH_SONGS_FROM_ALBUM_METHOD)){
-            HashMap<String, Integer> arguments= (HashMap<String, Integer>) call.arguments;
-            Bundle b= new Bundle();
-            b.putInt("albumId", arguments.get("albumId"));
-            Log.e("FLUTTER",arguments.get("albumId") + "ALBUMID" );
-            fetchSongsFromAlbum(b);
+        switch (call.method){
+            case FETCH_ALBUMS_METHOD:
+                fetchAlbums();
+                break;
+            case FETCH_SONGS_FROM_ALBUM_METHOD:
+                HashMap<String, Integer> arguments= (HashMap<String, Integer>) call.arguments;
+                Bundle b= new Bundle();
+                b.putInt("albumId", arguments.get("albumId"));
+                Log.e("FLUTTER",arguments.get("albumId") + "ALBUMID" );
+                fetchSongsFromAlbum(b);
+                break;
+            case PLAY_SONG:
+                break;
         }
     }
 
@@ -86,13 +107,14 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 break;
 
             case ALBUM_SONGS_LIST_LOADER_ID:
-                projection = new String[] { Media.DATA,
+                projection = new String[] {
                         Media._ID,
                         Media.TITLE,
                         Media.DISPLAY_NAME,
                         Media.ARTIST,
                         Media.DURATION,
                         Media.TRACK,
+                        Media.DATA,
                         Media.MIME_TYPE};
                 selection = Media.ALBUM_ID + "=?";
                 System.out.print(bundle.getInt("albumId") + "");
@@ -139,8 +161,10 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                         media.setTitle(cursor.getString(1));
                         media.setDisplayName(cursor.getString(2));
                         media.setArtist(cursor.getString(3));
-                        media.setDuration(cursor.getInt(4));
+                        media.setDuration(cursor.getLong(4));
                         media.setTrack(cursor.getInt(5));
+                        media.setUrl(cursor.getString(6));
+                        media.setType(cursor.getString(7));
 
                         // Add media to list
                         albumSongsList.add(media);
@@ -155,5 +179,27 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    //Show an explanation to the user *asynchronously*
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage("This permission is important to reread audio files from external storage.")
+                            .setTitle("Important permission required");
+
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_STORAGE);
+                        }
+                    });
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_STORAGE);
+                }
+            }
+        }
     }
 }

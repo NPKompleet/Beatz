@@ -10,14 +10,12 @@ class PlatformService {
   static const MethodChannel platform = MethodChannel('com.npkompleet.beatz');
   static final String _fetchAlbumMethodName = 'fetchAlbums';
   static final String _fetchSongsFromAlbumMethodName = 'fetchSongsFromAlbum';
+  static final String _playSongMethodName = 'play';
 
   static Future<List<Album>> fetchAlbums() async {
-//    List<Album> albums = [];
     String result = "";
     try {
       result = await platform.invokeMethod(_fetchAlbumMethodName);
-//      Iterable message = json.decode(result);
-//      message.forEach((e) => albums.add(Album.fromJson(e)));
     } on PlatformException catch (e) {
       print(e);
     }
@@ -50,5 +48,16 @@ class PlatformService {
     Iterable message = json.decode(result);
     message.forEach((e) => albumSongsList.add(AudioMedia.fromJson(e)));
     return albumSongsList;
+  }
+
+  static Future<Null> playSong(String url) async {
+    Map<String, String> songInfo = {"songUrl": url};
+    String result = "";
+    try {
+      result = await platform.invokeMethod(_playSongMethodName, songInfo);
+      print("Result was: $result");
+    } on PlatformException catch (e) {
+      print(e);
+    }
   }
 }
