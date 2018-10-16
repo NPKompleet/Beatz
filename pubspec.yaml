@@ -20,7 +20,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   sqflite:
-  path_provider:
   material_search: ^0.2.7
   shared_preferences: ^0.4.2
   rxdart:

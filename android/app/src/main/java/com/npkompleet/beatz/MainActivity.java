@@ -36,7 +36,8 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private static final String CHANNEL = "com.npkompleet.beatz";
     private static final String FETCH_ALBUMS_METHOD = "fetchAlbums";
     private static final String FETCH_SONGS_FROM_ALBUM_METHOD = "fetchSongsFromAlbum";
-    private static final String PLAY_SONG = "play";
+    private static final String PLAY_SONG_METHOD = "play";
+    private static final String POSITION_METHOD = "position";
     private static final int ALBUM_LIST_LOADER_ID = 100;
     private static final int ALBUM_SONGS_LIST_LOADER_ID = 101;
     private static final int REQUEST_EXTERNAL_STORAGE= 200;
@@ -81,9 +82,12 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 Log.e("FLUTTER",arguments.get("albumId") + "ALBUMID" );
                 fetchSongsFromAlbum(b);
                 break;
-            case PLAY_SONG:
+            case PLAY_SONG_METHOD:
                 HashMap<String, String> songArg= (HashMap<String, String>) call.arguments;
                 playSong(songArg.get("songUrl"));
+                break;
+            case POSITION_METHOD:
+                getPlayBackPosition();
                 break;
         }
     }
@@ -105,8 +109,12 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
         String[] selectionArgs;
         switch (loaderId){
             case ALBUM_LIST_LOADER_ID:
-                projection = new String[] { Albums._ID, Albums.ALBUM, Albums.ARTIST,
-                        Albums.ALBUM_ART, Albums.NUMBER_OF_SONGS };
+                projection = new String[] {
+                        Albums._ID,
+                        Albums.ALBUM,
+                        Albums.ARTIST,
+                        Albums.ALBUM_ART,
+                        Albums.NUMBER_OF_SONGS };
                 String sortOrder = Media.ALBUM + " ASC";
                 loader = new CursorLoader(this, Albums.EXTERNAL_CONTENT_URI, projection,
                         null, null, sortOrder);
@@ -141,7 +149,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
             case ALBUM_LIST_LOADER_ID:
                 ArrayList<Album> albumList = new ArrayList<>();
                 if (cursor.moveToFirst()) {
-                    // Loop through the table
+                    // Loop through the table and add album to list
                     do {
                         Album album = new Album();
                         album.setId(cursor.getInt(0));
@@ -149,8 +157,6 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                         album.setArtist(cursor.getString(2));
                         album.setAlbumArt(cursor.getString(3));
                         album.setNumOfSongs(cursor.getInt(4));
-
-                        // Add album to list
                         albumList.add(album);
                     } while (cursor.moveToNext());
                 }
@@ -160,7 +166,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
             case ALBUM_SONGS_LIST_LOADER_ID:
                 ArrayList<AudioMedia> albumSongsList = new ArrayList<>();
                 if (cursor.moveToFirst()) {
-                    // Loop through the table
+                    // Loop through the table and add media to list
                     do {
                         AudioMedia media = new AudioMedia();
                         media.setId(cursor.getInt(0));
@@ -171,8 +177,6 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                         media.setTrack(cursor.getInt(5));
                         media.setUri(cursor.getString(6));
                         media.setType(cursor.getString(7));
-
-                        // Add media to list
                         albumSongsList.add(media);
                     } while (cursor.moveToNext());
                 }
@@ -208,13 +212,21 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
         });
     }
 
+    private void getPlayBackPosition(){
+        if(mPlayer.isPlaying()){
+        channelResult.success(mPlayer.getCurrentPosition());
+        }else{
+            channelResult.success(0);
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == REQUEST_EXTERNAL_STORAGE) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    //Show an explanation to the user *asynchronously*
+                    //Show an explanation to the user
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setMessage("This permission is important to reread audio files from external storage.")
                             .setTitle("Important permission required");

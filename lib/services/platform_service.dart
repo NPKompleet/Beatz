@@ -8,14 +8,15 @@ import 'package:flutter/services.dart';
 
 class PlatformService {
   static const MethodChannel platform = MethodChannel('com.npkompleet.beatz');
-  static final String _fetchAlbumMethodName = 'fetchAlbums';
-  static final String _fetchSongsFromAlbumMethodName = 'fetchSongsFromAlbum';
-  static final String _playSongMethodName = 'play';
+  static final String _fetchAlbumMethod = 'fetchAlbums';
+  static final String _fetchSongsFromAlbumMethod = 'fetchSongsFromAlbum';
+  static final String _playSongMethod = 'play';
+  static final String _positionMethod = 'position';
 
   static Future<List<Album>> fetchAlbums() async {
     String result = "";
     try {
-      result = await platform.invokeMethod(_fetchAlbumMethodName);
+      result = await platform.invokeMethod(_fetchAlbumMethod);
     } on PlatformException catch (e) {
       print(e);
     }
@@ -34,8 +35,8 @@ class PlatformService {
     print("AlbumID: $id");
     String result = "";
     try {
-      result = await platform.invokeMethod(
-          _fetchSongsFromAlbumMethodName, albumInfo);
+      result =
+          await platform.invokeMethod(_fetchSongsFromAlbumMethod, albumInfo);
       print("Songs: $result");
     } on PlatformException catch (e) {
       print(e);
@@ -50,14 +51,26 @@ class PlatformService {
     return albumSongsList;
   }
 
-  static Future<Null> playSong(String url) async {
+  static Future<String> playSong(String url) async {
     Map<String, String> songInfo = {"songUrl": url};
     String result = "";
     try {
-      result = await platform.invokeMethod(_playSongMethodName, songInfo);
+      result = await platform.invokeMethod(_playSongMethod, songInfo);
       print("Result was: $result");
     } on PlatformException catch (e) {
       print(e);
     }
+    return result;
+  }
+
+  static Future<int> getPlaybackPosition() async {
+    int result = 0;
+    try {
+      result = await platform.invokeMethod(_positionMethod);
+      print("Position was: $result");
+    } on PlatformException catch (e) {
+      print(e);
+    }
+    return result;
   }
 }

@@ -7,11 +7,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/Documents/flutter/.pub-cache/hosted/pub.dartlang.org/flute_music_player-0.0.6/android" />
-            <option value="$USER_HOME$/Documents/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-0.4.1/android" />
             <option value="$USER_HOME$/Documents/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.4.2/android" />
             <option value="$USER_HOME$/Documents/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-0.12.1/android" />
-            <option value="$USER_HOME$/Documents/flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-3.0.1/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
           </set>

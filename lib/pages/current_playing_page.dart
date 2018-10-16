@@ -122,16 +122,18 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
               bool data = snapshot.hasData && snapshot.data.isNotEmpty;
               return Column(
                 children: <Widget>[
-                  StreamBuilder<AudioMedia>(
+                  StreamBuilder<List<String>>(
                       stream: _bloc.uiStream,
+                      initialData: ["0.0", "00:00", "00:00"],
                       builder: (context, snapshot) {
-                        bool slidData = snapshot.hasData;
+//                        bool slidData = snapshot.hasData;
+                        List<String> list = snapshot.data;
                         return Column(
                           children: <Widget>[
                             Slider(
-                              value: 0.0,
+                              value: double.parse(list.elementAt(0)),
                               min: 0.0,
-                              max: slidData ? 1.0 : 0.0,
+                              max: list.elementAt(2) != "00:00" ? 1.0 : 0.0,
                               onChanged: data ? (value) {} : null,
                             ),
                             Padding(
@@ -141,8 +143,8 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Text("0:00"),
-                                  Text("0:00"),
+                                  Text("${list.elementAt(1)}"),
+                                  Text("${list.elementAt(2)}"),
                                 ],
                               ),
                             ),
@@ -173,17 +175,15 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               return CircleAvatar(
                                 backgroundColor: iconColor,
                                 radius: 30.0,
-                                child: Center(
-                                  child: IconButton(
-                                    icon: Icon(
-                                      value == "play"
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      size: iconSize,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: data ? _playSongs : null,
+                                child: IconButton(
+                                  icon: Icon(
+                                    value == "play"
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    size: iconSize,
+                                    color: Colors.white,
                                   ),
+                                  onPressed: data ? _playSongs : null,
                                 ),
                               );
                             }),
@@ -291,6 +291,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   void dispose() {
     _needleAnimCtrl.dispose();
     _recordAnimCtrl.dispose();
+    _playState.dispose();
     _removeOverlay();
     super.dispose();
   }
