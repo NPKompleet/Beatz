@@ -4,8 +4,9 @@ import 'dart:collection';
 import 'package:beatz/blocs/bloc_provider.dart';
 import 'package:beatz/models/audio_media.dart';
 import 'package:beatz/services/platform_service.dart';
-import 'package:beatz/utils/TimeUtil.dart';
+import 'package:beatz/utils/time_util.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
 
 class CurrentPlayingBloc extends BlocBase {
   List<AudioMedia> _albumSongsList = [];
@@ -14,19 +15,20 @@ class CurrentPlayingBloc extends BlocBase {
   int _duration = 0;
   String _durationString;
   int _position = 0;
+  final playState = ValueNotifier<String>("");
 
-  /// Stream to handle displaying songs
-  StreamController<List<AudioMedia>> _listController =
-      StreamController<List<AudioMedia>>();
+  // Stream to handle displaying songs
+  BehaviorSubject<List<AudioMedia>> _listController =
+      BehaviorSubject<List<AudioMedia>>();
   StreamSink<List<AudioMedia>> get _albumSongsListSink => _listController.sink;
   Stream<List<AudioMedia>> get albumSongsListStream => _listController.stream;
 
-  /// Stream to handle playing songs
+  // Stream to handle playing songs
   StreamController _playController = StreamController();
   StreamSink get startSong => _playController.sink;
   Stream get _playSong => _playController.stream;
 
-  /// Stream to handle updating slider
+  // Stream to handle updating slider
   StreamController<List<String>> _uiController =
       StreamController<List<String>>();
   StreamSink<List<String>> get _uiSink => _uiController.sink;
@@ -46,6 +48,7 @@ class CurrentPlayingBloc extends BlocBase {
 
   Future<Null> _startPlaying(data) async {
     print('playback started');
+    playState.value = "play";
     String result = await PlatformService.playSong(_albumSongsList[0].uri);
     if (result == "success") {
       print("was result");
@@ -68,5 +71,6 @@ class CurrentPlayingBloc extends BlocBase {
     _playController.close();
     _uiController.close();
     _timer?.cancel();
+    playState.dispose();
   }
 }

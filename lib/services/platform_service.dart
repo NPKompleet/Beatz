@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:beatz/blocs/current_playing_bloc.dart';
 import 'package:beatz/models/album.dart';
 import 'package:beatz/models/audio_media.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ class PlatformService {
   static final String _fetchSongsFromAlbumMethod = 'fetchSongsFromAlbum';
   static final String _playSongMethod = 'play';
   static final String _positionMethod = 'position';
+  CurrentPlayingBloc cpBloc;
 
   static Future<List<Album>> fetchAlbums() async {
     String result = "";

@@ -7,6 +7,7 @@ import 'package:beatz/services/platform_service.dart';
 
 class AlbumsPageBloc extends BlocBase {
   List<Album> _albumList = [];
+  PlatformService platformService;
 
   /// Stream to handle displaying albums
   StreamController<List<Album>> _listController =

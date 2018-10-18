@@ -23,11 +23,9 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   AnimationController _needleAnimCtrl;
   AnimationController _recordAnimCtrl;
-  List<AudioMedia> _albumSongsList = [];
   OverlayState _overlayState;
   OverlayEntry _overlayEntry;
   CurrentPlayingBloc _bloc;
-  final _playState = ValueNotifier<String>("");
 
   @override
   initState() {
@@ -170,7 +168,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               color: iconColor,
                             )),
                         ValueListenableBuilder<String>(
-                            valueListenable: _playState,
+                            valueListenable: _bloc.playState,
                             builder: (_, value, __) {
                               return CircleAvatar(
                                 backgroundColor: iconColor,
@@ -257,23 +255,28 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
       height: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(horizontal: 100.0),
       child: Center(
-        child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: _albumSongsList.length,
-            itemBuilder: (context, index) {
-              AudioMedia media = _albumSongsList[index];
-              return Column(
-                children: <Widget>[
-                  Divider(
-                    height: 10.0,
-                    color: Colors.white70,
-                  ),
-                  Text(
-                    media.displayName,
-                    style: TextStyle(fontSize: 20.0),
-                  ),
-                ],
-              );
+        child: StreamBuilder(
+            stream: _bloc.albumSongsListStream,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<AudioMedia>> snapshot) {
+              return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data?.length ?? 0,
+                  itemBuilder: (context, index) {
+                    AudioMedia media = snapshot.data.elementAt(index);
+                    return Column(
+                      children: <Widget>[
+                        Divider(
+                          height: 10.0,
+                          color: Colors.white70,
+                        ),
+                        Text(
+                          media.displayName,
+                          style: TextStyle(fontSize: 20.0),
+                        ),
+                      ],
+                    );
+                  });
             }),
       ),
     );
@@ -284,14 +287,12 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   void _playSongs() {
     _needleAnimCtrl.forward();
     _bloc.startSong.add(0);
-    _playState.value = "play";
   }
 
   @override
   void dispose() {
     _needleAnimCtrl.dispose();
     _recordAnimCtrl.dispose();
-    _playState.dispose();
     _removeOverlay();
     super.dispose();
   }
