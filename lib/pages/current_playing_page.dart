@@ -48,17 +48,44 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   @override
   Widget build(BuildContext context) {
+    _bloc = BlocProvider.of<CurrentPlayingBloc>(context);
     return SafeArea(
       child: Material(
-        child: Container(
-          color: Colors.white,
-          child: Stack(
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            iconTheme: IconThemeData(
+              color: Colors.pink,
+            ),
+            title: ValueListenableBuilder<List<String>>(
+                valueListenable: _bloc.songInfo,
+                builder: (_, list, __) => Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          list.isNotEmpty ? list.elementAt(0) : "",
+                          style: TextStyle(fontSize: 18.0, color: Colors.pink),
+                        ),
+                        Text(
+                          list.isNotEmpty ? list.elementAt(1) : "",
+                          style: TextStyle(fontSize: 14.0, color: Colors.pink),
+                        ),
+                      ],
+                    )),
+            leading: IconButton(
+              icon: Icon(Icons.keyboard_backspace, size: 30.0),
+              onPressed: () {},
+            ),
+          ),
+//          color: Colors.white,
+          body: Stack(
             fit: StackFit.expand,
             children: <Widget>[
               _buildRecordWidget(),
               _buildNeedleWidget(),
               _buildPlaybackControls(),
-              _buildBackButton(),
+//              _buildBackButton(),
             ],
           ),
         ),
@@ -68,7 +95,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   Widget _buildRecordWidget() {
     return Positioned(
-      top: 150.0,
+      top: 100.0,
       child: GestureDetector(
         child: RotationTransition(
           turns: _recordAnimCtrl,
@@ -77,7 +104,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
             alignment: Alignment.center,
             child: Hero(
               tag: "${widget.album.id}",
-              child: RecordWidget(
+              child: RecordWidget.largeImage(
                 diameter: 260.0,
                 albumArt: widget.album.albumArt,
               ),
@@ -91,7 +118,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   Widget _buildNeedleWidget() {
     return Positioned(
-      top: 100.0,
+      top: 50.0,
       right: 0.0,
       child: RotationTransition(
         turns: _needleAnimCtrl,
@@ -106,7 +133,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   }
 
   Widget _buildPlaybackControls() {
-    _bloc = BlocProvider.of<CurrentPlayingBloc>(context);
     return Positioned(
       bottom: 0.0,
       child: Container(
@@ -207,21 +233,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     );
   }
 
-  Widget _buildBackButton() {
-    return Positioned(
-      left: 5.0,
-      top: 5.0,
-      child: IconButton(
-        icon: Icon(
-          Icons.keyboard_backspace,
-          size: 30.0,
-          color: Colors.pinkAccent,
-        ),
-        onPressed: () {},
-      ),
-    );
-  }
-
   void _showSongsList(BuildContext context) {
     _overlayState = Overlay.of(context);
     _overlayEntry = OverlayEntry(
@@ -270,7 +281,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                           color: Colors.white70,
                         ),
                         Text(
-                          media.displayName,
+                          media.title,
                           style: TextStyle(fontSize: 20.0),
                         ),
                       ],

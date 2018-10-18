@@ -7,9 +7,15 @@ class RecordWidget extends StatelessWidget {
   final double diameter;
   final String albumArt;
   final File file;
+  final bool large;
 
   RecordWidget({@required this.diameter, @required this.albumArt})
-      : file = File('$albumArt');
+      : file = File('$albumArt'),
+        large = false;
+
+  RecordWidget.largeImage({@required this.diameter, @required this.albumArt})
+      : file = File('$albumArt'),
+        large = true;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,9 @@ class RecordWidget extends StatelessWidget {
       child: Stack(
         children: [
           Image(
-            image: AssetImage('assets/record.png'),
+            image: large
+                ? AssetImage('assets/record2.png')
+                : AssetImage('assets/record2.png'),
             width: diameter,
             height: diameter,
             fit: BoxFit.fill,

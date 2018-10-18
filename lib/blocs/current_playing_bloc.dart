@@ -16,6 +16,7 @@ class CurrentPlayingBloc extends BlocBase {
   String _durationString;
   int _position = 0;
   final playState = ValueNotifier<String>("");
+  final songInfo = ValueNotifier<List<String>>([]);
 
   // Stream to handle displaying songs
   BehaviorSubject<List<AudioMedia>> _listController =
@@ -42,6 +43,7 @@ class CurrentPlayingBloc extends BlocBase {
   Future<Null> _fetchAlbumSongs(int id) async {
     _albumSongsList = await PlatformService.fetchSongsFromAlbum(id);
     _albumSongsListSink.add(UnmodifiableListView<AudioMedia>(_albumSongsList));
+    songInfo.value = [_albumSongsList[0].title, _albumSongsList[0].artist];
     _duration = _albumSongsList[0].duration;
     _durationString = await compute(TimeUtil.convertTimeToString, _duration);
   }
@@ -72,5 +74,6 @@ class CurrentPlayingBloc extends BlocBase {
     _uiController.close();
     _timer?.cancel();
     playState.dispose();
+    songInfo.dispose();
   }
 }
