@@ -124,7 +124,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                       stream: _bloc.uiStream,
                       initialData: ["0.0", "00:00", "00:00"],
                       builder: (context, snapshot) {
-//                        bool slidData = snapshot.hasData;
                         List<String> list = snapshot.data;
                         return Column(
                           children: <Widget>[
@@ -167,13 +166,13 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               size: iconSize,
                               color: iconColor,
                             )),
-                        ValueListenableBuilder<String>(
-                            valueListenable: _bloc.playState,
-                            builder: (_, value, __) {
-                              return CircleAvatar(
-                                backgroundColor: iconColor,
-                                radius: 30.0,
-                                child: IconButton(
+                        CircleAvatar(
+                          backgroundColor: iconColor,
+                          radius: 30.0,
+                          child: ValueListenableBuilder<String>(
+                              valueListenable: _bloc.playState,
+                              builder: (_, value, __) {
+                                return IconButton(
                                   icon: Icon(
                                     value == "play"
                                         ? Icons.pause
@@ -182,9 +181,9 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                                     color: Colors.white,
                                   ),
                                   onPressed: data ? _playSongs : null,
-                                ),
-                              );
-                            }),
+                                );
+                              }),
+                        ),
                         IconButton(
                             onPressed: data ? () {} : null,
                             icon: ImageIcon(
