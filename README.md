@@ -8,8 +8,8 @@ This app relies on platform channel and the Bloc pattern to build a reactive mus
 application on Android
 
 ## Screenshots
-<div style="background-color:black;">
 <img src="https://github.com/NPKompleet/Beatz/blob/master/screenshots/home.png" alt="Home" height="480"/>       <img src="https://github.com/NPKompleet/Beatz/blob/master/screenshots/notplaying.png" alt="Ready" height="480"/>        <img src="https://github.com/NPKompleet/Beatz/blob/master/screenshots/playing.png" alt="Playing" height="480"/>
 
+
 <img src="https://github.com/NPKompleet/Beatz/blob/master/screenshots/overlay.png" alt="Overlay" height="480"/>
-</div>
+
