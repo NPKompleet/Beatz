@@ -33,17 +33,19 @@ import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
 public class MainActivity extends FlutterActivity implements LoaderManager.LoaderCallbacks<Cursor>{
-    private static final String CHANNEL = "com.npkompleet.beatz";
+    private static final String CHANNEL_NAME = "com.npkompleet.beatz";
     private static final String FETCH_ALBUMS_METHOD = "fetchAlbums";
     private static final String FETCH_SONGS_FROM_ALBUM_METHOD = "fetchSongsFromAlbum";
     private static final String PLAY_SONG_METHOD = "play";
     private static final String POSITION_METHOD = "position";
+    private static final String SONG_COMPLETE_METHOD = "complete";
     private static final int ALBUM_LIST_LOADER_ID = 100;
     private static final int ALBUM_SONGS_LIST_LOADER_ID = 101;
     private static final int REQUEST_EXTERNAL_STORAGE= 200;
     Result channelResult;
     Loader loader;
     MediaPlayer mPlayer;
+    MethodChannel channel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,10 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     }
 
     private void setUpMethodChannel(){
-        new MethodChannel(getFlutterView(), CHANNEL).setMethodCallHandler(
+        channel= new MethodChannel(getFlutterView(), CHANNEL_NAME);
+        // Method handler for calls to be executed
+        // on the Android side of the channel
+        channel.setMethodCallHandler(
                 new MethodChannel.MethodCallHandler() {
                     @Override
                     public void onMethodCall(MethodCall call, Result result) {
@@ -210,6 +215,15 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 channelResult.success("success");
             }
         });
+
+        mPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        channel.invokeMethod(SONG_COMPLETE_METHOD, null);
+                    }
+                }
+        );
     }
 
     private void getPlayBackPosition(){

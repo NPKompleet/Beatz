@@ -44,6 +44,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   // the needle animation is completed.
   void _startRecordAnimation(AnimationStatus status) {
     if (status == AnimationStatus.completed) _recordAnimCtrl.repeat();
+    if (status == AnimationStatus.reverse) _recordAnimCtrl.stop();
   }
 
   @override
@@ -78,14 +79,12 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
               onPressed: () {},
             ),
           ),
-//          color: Colors.white,
           body: Stack(
             fit: StackFit.expand,
             children: <Widget>[
               _buildRecordWidget(),
               _buildNeedleWidget(),
               _buildPlaybackControls(),
-//              _buildBackButton(),
             ],
           ),
         ),
@@ -156,7 +155,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                             Slider(
                               value: double.parse(list.elementAt(0)),
                               min: 0.0,
-                              max: list.elementAt(2) != "00:00" ? 1.0 : 0.0,
+                              max: list.elementAt(2) == "00:00" ? 0.0 : 1.0,
                               onChanged: data ? (value) {} : null,
                             ),
                             Padding(
@@ -297,6 +296,23 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   void _playSongs() {
     _needleAnimCtrl.forward();
     _bloc.startSong.add(0);
+    _bloc.playState.addListener(_onPlaybackEvent);
+  }
+
+  void _onPlaybackEvent() {
+    switch (_bloc.playState.value) {
+      case "stop":
+        _recordAnimCtrl.stop();
+        _needleAnimCtrl.reverse();
+        break;
+      case "error":
+        _recordAnimCtrl.stop();
+        _needleAnimCtrl.reverse();
+        break;
+      case "pause":
+        _recordAnimCtrl.stop();
+        break;
+    }
   }
 
   @override
@@ -304,6 +320,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     _needleAnimCtrl.dispose();
     _recordAnimCtrl.dispose();
     _removeOverlay();
+    _bloc.dispose();
     super.dispose();
   }
 }

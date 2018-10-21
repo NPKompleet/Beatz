@@ -38,6 +38,7 @@ class CurrentPlayingBloc extends BlocBase {
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
+    PlatformService.stopAnimNotifier = ValueNotifier("");
   }
 
   Future<Null> _fetchAlbumSongs(int id) async {
@@ -51,20 +52,28 @@ class CurrentPlayingBloc extends BlocBase {
   Future<Null> _startPlaying(data) async {
     print('playback started');
     playState.value = "play";
+    PlatformService.stopAnimNotifier.addListener(_stopAnim);
     String result = await PlatformService.playSong(_albumSongsList[0].uri);
     if (result == "success") {
       print("was result");
-      _timer = Timer.periodic(Duration(milliseconds: 500), _getPosition);
+      _getPosition();
     }
   }
 
-  Future<Null> _getPosition(Timer timer) async {
-    final List<String> list = [];
-    _position = await PlatformService.getPlaybackPosition();
-    list.add((_position / _duration).toString());
-    list.add(await compute(TimeUtil.convertTimeToString, _position));
-    list.add(_durationString);
-    _uiSink.add(list);
+  Future<Null> _getPosition() async {
+    while (playState.value == "play") {
+      final List<String> list = [];
+      _position = await PlatformService.getPlaybackPosition();
+      list.add((_position / _duration).toString());
+      list.add(await compute(TimeUtil.convertTimeToString, _position));
+      list.add(_durationString);
+      _uiSink.add(list);
+      Future.delayed(Duration(milliseconds: 500));
+    }
+  }
+
+  void _stopAnim() {
+    playState.value = "stop";
   }
 
   @override
@@ -72,7 +81,7 @@ class CurrentPlayingBloc extends BlocBase {
     _listController.close();
     _playController.close();
     _uiController.close();
-    _timer?.cancel();
+    PlatformService.stopAnimNotifier.dispose();
     playState.dispose();
     songInfo.dispose();
   }
