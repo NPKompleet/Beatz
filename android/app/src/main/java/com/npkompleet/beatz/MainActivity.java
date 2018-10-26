@@ -25,6 +25,8 @@ import com.npkompleet.beatz.models.AudioMedia;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugin.common.MethodCall;
@@ -46,6 +48,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     Loader loader;
     MediaPlayer mPlayer;
     MethodChannel channel;
+    Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +94,9 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 HashMap<String, String> songArg= (HashMap<String, String>) call.arguments;
                 playSong(songArg.get("songUrl"));
                 break;
-            case POSITION_METHOD:
-                getPlayBackPosition();
-                break;
+//            case POSITION_METHOD:
+//                getPlayBackPosition();
+//                break;
         }
     }
 
@@ -198,6 +201,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
 
     private void playSong(String uri){
         if (mPlayer == null) {
+            timer = new Timer();
             mPlayer = new MediaPlayer();
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             try {
@@ -211,7 +215,14 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
         mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        getPlaybackPosition();
+                    }
+                };
                 mediaPlayer.start();
+                timer.scheduleAtFixedRate(task, 0L, 300L);
                 channelResult.success("success");
             }
         });
@@ -220,17 +231,17 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
+                        timer.cancel();
                         channel.invokeMethod(SONG_COMPLETE_METHOD, null);
                     }
                 }
         );
     }
 
-    private void getPlayBackPosition(){
-        if(mPlayer.isPlaying()){
-        channelResult.success(mPlayer.getCurrentPosition());
-        }else{
-            channelResult.success(0);
+    private void getPlaybackPosition(){
+        if(mPlayer.isPlaying()) {
+            channel.invokeMethod(POSITION_METHOD, mPlayer.getCurrentPosition());
+//            channelResult.success(mPlayer.getCurrentPosition());
         }
     }
 

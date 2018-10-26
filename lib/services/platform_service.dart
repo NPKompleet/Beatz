@@ -13,15 +13,21 @@ class PlatformService {
   static const String _playSongMethod = 'play';
   static const String _positionMethod = 'position';
   static const String _songCompleteMethod = "complete";
-  static ValueNotifier<String> stopAnimNotifier;
+  static ValueNotifier<String> stopNotifier;
+  static ValueNotifier<int> positionNotifier = ValueNotifier(0);
 
   // Method handler for calls to be executed
   // on the Flutter side of the channel
   static Future<Null> callHandler(MethodCall call) {
     switch (call.method) {
       case _songCompleteMethod:
-        stopAnimNotifier.value = "complete";
+        stopNotifier.value = "complete";
         print("completed");
+        break;
+      case _positionMethod:
+        int position = call.arguments;
+        print(position);
+        positionNotifier.value = position;
         break;
     }
   }

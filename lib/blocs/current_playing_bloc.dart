@@ -11,7 +11,6 @@ import 'package:rxdart/rxdart.dart';
 class CurrentPlayingBloc extends BlocBase {
   List<AudioMedia> _albumSongsList = [];
   int _songIndex = 0;
-  Timer _timer;
   int _duration = 0;
   String _durationString;
   int _position = 0;
@@ -38,38 +37,35 @@ class CurrentPlayingBloc extends BlocBase {
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
-    PlatformService.stopAnimNotifier = ValueNotifier("");
+    PlatformService.stopNotifier = ValueNotifier("");
   }
 
   Future<Null> _fetchAlbumSongs(int id) async {
     _albumSongsList = await PlatformService.fetchSongsFromAlbum(id);
     _albumSongsListSink.add(UnmodifiableListView<AudioMedia>(_albumSongsList));
-    songInfo.value = [_albumSongsList[0].title, _albumSongsList[0].artist];
-    _duration = _albumSongsList[0].duration;
+    songInfo.value = [
+      _albumSongsList[_songIndex].title,
+      _albumSongsList[_songIndex].artist
+    ];
+    _duration = _albumSongsList[_songIndex].duration;
     _durationString = await compute(TimeUtil.convertTimeToString, _duration);
   }
 
   Future<Null> _startPlaying(data) async {
     print('playback started');
     playState.value = "play";
-    PlatformService.stopAnimNotifier.addListener(_stopAnim);
-    String result = await PlatformService.playSong(_albumSongsList[0].uri);
-    if (result == "success") {
-      print("was result");
-      _getPosition();
-    }
+    PlatformService.stopNotifier.addListener(_stopAnim);
+    PlatformService.positionNotifier.addListener(_getPosition);
+    PlatformService.playSong(_albumSongsList[_songIndex].uri);
   }
 
-  Future<Null> _getPosition() async {
-    while (playState.value == "play") {
-      final List<String> list = [];
-      _position = await PlatformService.getPlaybackPosition();
-      list.add((_position / _duration).toString());
-      list.add(await compute(TimeUtil.convertTimeToString, _position));
-      list.add(_durationString);
-      _uiSink.add(list);
-      Future.delayed(Duration(milliseconds: 500));
-    }
+  void _getPosition() {
+    final List<String> list = [];
+    _position = PlatformService.positionNotifier.value;
+    list.add((_position / _duration).toString());
+    list.add(TimeUtil.convertTimeToString(_position));
+    list.add(_durationString);
+    _uiSink.add(list);
   }
 
   void _stopAnim() {
@@ -81,7 +77,7 @@ class CurrentPlayingBloc extends BlocBase {
     _listController.close();
     _playController.close();
     _uiController.close();
-    PlatformService.stopAnimNotifier.dispose();
+    PlatformService.stopNotifier.dispose();
     playState.dispose();
     songInfo.dispose();
   }
