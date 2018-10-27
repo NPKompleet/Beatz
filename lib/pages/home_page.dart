@@ -1,6 +1,11 @@
 import 'package:beatz/blocs/albums_page_bloc.dart';
 import 'package:beatz/blocs/bloc_provider.dart';
+import 'package:beatz/blocs/home_page_bloc.dart';
+import 'package:beatz/blocs/playlist_page_bloc.dart';
+import 'package:beatz/blocs/songs_page_bloc.dart';
 import 'package:beatz/pages/albums_page.dart';
+import 'package:beatz/pages/playlist_page.dart';
+import 'package:beatz/pages/songs_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,8 +18,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
+  HomePageBloc bloc;
   AnimationController _controller;
   Animation<double> _heightAnimation;
+
+  final _widgetOptions = [
+    BlocProvider<AlbumsPageBloc>(
+      bloc: AlbumsPageBloc(),
+      child: AlbumsPage(),
+    ),
+    BlocProvider<SongsPageBloc>(
+      bloc: SongsPageBloc(),
+      child: SongsPage(),
+    ),
+    BlocProvider<PlaylistPageBloc>(
+      bloc: PlaylistPageBloc(),
+      child: PlaylistPage(),
+    ),
+  ];
 
   @override
   void initState() {
@@ -31,6 +52,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    bloc = BlocProvider.of<HomePageBloc>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -63,59 +85,40 @@ class _HomePageState extends State<HomePage>
               );
             }),
         Expanded(
-          child: Scaffold(
-            body: BlocProvider<AlbumsPageBloc>(
-              bloc: AlbumsPageBloc(),
-              child: AlbumsPage(),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              currentIndex: 0,
-              items: [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.album),
-                  title: Text("albums"),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.queue_music),
-                  title: Text("songs"),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.playlist_play),
-                  title: Text("playlist"),
-                ),
-              ],
-            ),
-          ),
+          child: StreamBuilder<int>(
+              initialData: 0,
+              stream: bloc.pageIndexStream,
+              builder: (context, snapshot) {
+                return Scaffold(
+                  body: _widgetOptions.elementAt(snapshot.data),
+                  /*BlocProvider<AlbumsPageBloc>(
+                    bloc: AlbumsPageBloc(),
+                    child: AlbumsPage(),
+                  ),*/
+                  bottomNavigationBar: BottomNavigationBar(
+                    currentIndex: snapshot.data,
+                    items: [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.album),
+                        title: Text("albums"),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.queue_music),
+                        title: Text("songs"),
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.playlist_play),
+                        title: Text("playlist"),
+                      ),
+                    ],
+                    onTap: _onItemSelected,
+                  ),
+                );
+              }),
         ),
       ],
     );
   }
-}
 
-class BottomWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = new Path();
-    path.lineTo(0.0, size.height - 20);
-
-    var firstControlPoint = Offset(size.width / 4, size.height);
-    var firstEndPoint = Offset(size.width / 2.25, size.height - 30.0);
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstEndPoint.dx, firstEndPoint.dy);
-
-    var secondControlPoint =
-        Offset(size.width - (size.width / 3.25), size.height - 65);
-    var secondEndPoint = Offset(size.width, size.height - 20.0);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondEndPoint.dx, secondEndPoint.dy);
-
-    path.lineTo(size.width, size.height - 20);
-    path.lineTo(size.width, 0.0);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+  void _onItemSelected(int index) => bloc.pageIndex.add(index);
 }

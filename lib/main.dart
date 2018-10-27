@@ -1,3 +1,5 @@
+import 'package:beatz/blocs/bloc_provider.dart';
+import 'package:beatz/blocs/home_page_bloc.dart';
 import 'package:beatz/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +18,10 @@ class MyApp extends StatelessWidget {
         primaryColorLight: Colors.deepOrangeAccent,
         accentColor: Colors.purpleAccent,
       ),
-      home: HomePage(title: 'Beatz'),
+      home: BlocProvider<HomePageBloc>(
+        bloc: HomePageBloc(),
+        child: HomePage(title: 'Beatz'),
+      ),
     );
   }
 }
