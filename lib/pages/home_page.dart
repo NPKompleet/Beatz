@@ -18,7 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  HomePageBloc bloc;
+  HomePageBloc _bloc;
   AnimationController _controller;
   Animation<double> _heightAnimation;
 
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    bloc = BlocProvider.of<HomePageBloc>(context);
+    _bloc = BlocProvider.of<HomePageBloc>(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage>
         Expanded(
           child: StreamBuilder<int>(
               initialData: 0,
-              stream: bloc.pageIndexStream,
+              stream: _bloc.pageIndexStream,
               builder: (context, snapshot) {
                 return Scaffold(
                   body: _widgetOptions.elementAt(snapshot.data),
@@ -120,5 +120,5 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void _onItemSelected(int index) => bloc.pageIndex.add(index);
+  void _onItemSelected(int index) => _bloc.pageIndex.add(index);
 }

@@ -37,7 +37,6 @@ class CurrentPlayingBloc extends BlocBase {
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
-    PlatformService.stopNotifier = ValueNotifier("");
   }
 
   Future<Null> _fetchAlbumSongs(int id) async {
@@ -77,7 +76,6 @@ class CurrentPlayingBloc extends BlocBase {
     _listController.close();
     _playController.close();
     _uiController.close();
-    PlatformService.stopNotifier.dispose();
     playState.dispose();
     songInfo.dispose();
   }

@@ -13,7 +13,7 @@ class PlatformService {
   static const String _playSongMethod = 'play';
   static const String _positionMethod = 'position';
   static const String _songCompleteMethod = "complete";
-  static ValueNotifier<String> stopNotifier;
+  static ValueNotifier<String> stopNotifier = ValueNotifier("");
   static ValueNotifier<int> positionNotifier = ValueNotifier(0);
 
   // Method handler for calls to be executed

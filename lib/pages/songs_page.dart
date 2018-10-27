@@ -4,7 +4,7 @@ class SongsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text("Songs"),
+      child: Text("TODO: Songs Page"),
     );
   }
 }
