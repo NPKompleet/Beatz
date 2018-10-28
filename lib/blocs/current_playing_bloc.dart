@@ -52,6 +52,7 @@ class CurrentPlayingBloc extends BlocBase {
 
   Future<Null> _startPlaying(data) async {
     print('playback started');
+    _reset();
     playState.value = "play";
     PlatformService.stopNotifier.addListener(_stopAnim);
     PlatformService.positionNotifier.addListener(_getPosition);
@@ -68,7 +69,14 @@ class CurrentPlayingBloc extends BlocBase {
   }
 
   void _stopAnim() {
-    playState.value = "stop";
+    if (PlatformService.stopNotifier.value == "complete")
+      playState.value = "stop";
+  }
+
+  void _reset() {
+    playState.value = "";
+    songInfo.value = [];
+    PlatformService.reset();
   }
 
   @override

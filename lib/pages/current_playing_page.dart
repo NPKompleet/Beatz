@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beatz/blocs/bloc_provider.dart';
 import 'package:beatz/blocs/current_playing_bloc.dart';
 import 'package:beatz/models/album.dart';
@@ -18,8 +20,8 @@ class CurrentPlayingPage extends StatefulWidget {
 
 class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     with TickerProviderStateMixin {
-  static const double iconSize = 35.0;
-  static const Color iconColor = Colors.deepOrangeAccent;
+  final double iconSize = 35.0;
+  final Color iconColor = Colors.deepOrangeAccent;
 
   AnimationController _needleAnimCtrl;
   AnimationController _recordAnimCtrl;
@@ -293,17 +295,26 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   void _removeOverlay() => _overlayEntry?.remove();
 
-  void _playSongs() {
+  Future<Null> _playSongs() async {
     _needleAnimCtrl.forward();
+    // Wait for the needle animation to complete
+    // before adding the song
+    await Future.delayed(Duration(milliseconds: 1000));
     _bloc.startSong.add(0);
+//    await Future.delayed(Duration(milliseconds: 1500));
+//    print(_bloc.playState.value);
     _bloc.playState.addListener(_onPlaybackEvent);
   }
 
-  void _onPlaybackEvent() {
+  Future<Null> _onPlaybackEvent() async {
     switch (_bloc.playState.value) {
       case "stop":
         _recordAnimCtrl.stop();
         _needleAnimCtrl.reverse();
+        // Wait for the needle reverse animation to complete
+        // before resetting the controller
+        await Future.delayed(Duration(milliseconds: 1000));
+        _needleAnimCtrl.reset();
         break;
       case "error":
         _recordAnimCtrl.stop();

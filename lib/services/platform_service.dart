@@ -26,7 +26,7 @@ class PlatformService {
         break;
       case _positionMethod:
         int position = call.arguments;
-        print(position);
+//        print(position);
         positionNotifier.value = position;
         break;
     }
@@ -92,5 +92,10 @@ class PlatformService {
       print(e);
     }
     return result;
+  }
+
+  static void reset() {
+    stopNotifier.value = "";
+    positionNotifier.value = 0;
   }
 }
