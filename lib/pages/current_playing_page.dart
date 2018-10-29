@@ -201,13 +201,13 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               builder: (_, value, __) {
                                 return IconButton(
                                   icon: Icon(
-                                    value == "play"
+                                    value == "play" || value == "resume"
                                         ? Icons.pause
                                         : Icons.play_arrow,
                                     size: iconSize,
                                     color: Colors.white,
                                   ),
-                                  onPressed: data ? _playSongs : null,
+                                  onPressed: data ? _playOrPauseSong : null,
                                 );
                               }),
                         ),
@@ -301,13 +301,22 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   void _removeOverlay() => _overlayEntry?.remove();
 
-  Future<Null> _playSongs() async {
-    _needleAnimCtrl.forward();
-    // Wait for the needle animation to complete
-    // before adding the song
-    await Future.delayed(Duration(milliseconds: 1000));
-    _bloc.startSong.add(0);
-    _bloc.playState.addListener(_onPlaybackEvent);
+  Future<Null> _playOrPauseSong() async {
+    if (_bloc.playState.value != "play" &&
+        _bloc.playState.value != "pause" &&
+        _bloc.playState.value != "resume") {
+      _needleAnimCtrl.forward();
+      // Wait for the needle animation to complete
+      // before adding the song
+      await Future.delayed(Duration(milliseconds: 1000));
+      _bloc.startSong.add(0);
+      _bloc.playState.addListener(_onPlaybackEvent);
+    } else if (_bloc.playState.value == "play" ||
+        _bloc.playState.value == "resume") {
+      _bloc.playState.value = "pause";
+    } else {
+      _bloc.playState.value = "resume";
+    }
   }
 
   Future<Null> _onPlaybackEvent() async {
@@ -326,6 +335,9 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
         break;
       case "pause":
         _recordAnimCtrl.stop();
+        break;
+      case "resume":
+        _recordAnimCtrl.repeat();
         break;
     }
   }

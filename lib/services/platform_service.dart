@@ -11,6 +11,8 @@ class PlatformService {
   static const String _fetchAlbumMethod = 'fetchAlbums';
   static const String _fetchSongsFromAlbumMethod = 'fetchSongsFromAlbum';
   static const String _seekMethod = 'seek';
+  static const String _pauseMethod = 'pause';
+  static const String _resumeMethod = 'resume';
   static const String _playSongMethod = 'play';
   static const String _positionMethod = 'position';
   static const String _songCompleteMethod = "complete";
@@ -82,12 +84,20 @@ class PlatformService {
     return result;
   }
 
+  static Future<Null> seekTo(int playbackPosition) async {
+    await channel.invokeMethod(_seekMethod, {"position": playbackPosition});
+  }
+
+  static Future<Null> pauseSong() async {
+    await channel.invokeMethod(_pauseMethod);
+  }
+
+  static Future<Null> resumeSong() async {
+    await channel.invokeMethod(_resumeMethod);
+  }
+
   static void reset() {
     stopNotifier.value = "";
     positionNotifier.value = 0;
-  }
-
-  static Future<Null> seekTo(int playbackPosition) async {
-    await channel.invokeMethod(_seekMethod, {"position": playbackPosition});
   }
 }

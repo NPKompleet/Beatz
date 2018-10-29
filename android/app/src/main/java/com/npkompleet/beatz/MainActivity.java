@@ -39,6 +39,8 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private static final String FETCH_ALBUMS_METHOD = "fetchAlbums";
     private static final String FETCH_SONGS_FROM_ALBUM_METHOD = "fetchSongsFromAlbum";
     private static final String SEEK_METHOD = "seek";
+    private static final String PAUSE_METHOD = "pause";
+    private static final String RESUME_METHOD = "resume";
     private static final String PLAY_SONG_METHOD = "play";
     private static final String POSITION_METHOD = "position";
     private static final String SONG_COMPLETE_METHOD = "complete";
@@ -98,6 +100,12 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
             case SEEK_METHOD:
                 HashMap<String, Integer> positionArg= (HashMap<String, Integer>) call.arguments;
                 seek(positionArg.get("position"));
+                break;
+            case PAUSE_METHOD:
+                mPlayer.pause();
+                break;
+            case RESUME_METHOD:
+                mPlayer.start();
                 break;
         }
     }

@@ -42,6 +42,7 @@ class CurrentPlayingBloc extends BlocBase {
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
+    playState.addListener(_pauseAndResume);
   }
 
   Future<Null> _fetchAlbumSongs(int id) async {
@@ -77,6 +78,14 @@ class CurrentPlayingBloc extends BlocBase {
   void _stopAnim() {
     if (PlatformService.stopNotifier.value == "complete")
       playState.value = "stop";
+  }
+
+  void _pauseAndResume() {
+    if (playState.value == "pause") {
+      PlatformService.pauseSong();
+    } else if (playState.value == "resume") {
+      PlatformService.resumeSong();
+    }
   }
 
   void _reset() {

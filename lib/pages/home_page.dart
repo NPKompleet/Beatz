@@ -91,10 +91,6 @@ class _HomePageState extends State<HomePage>
               builder: (context, snapshot) {
                 return Scaffold(
                   body: _widgetOptions.elementAt(snapshot.data),
-                  /*BlocProvider<AlbumsPageBloc>(
-                    bloc: AlbumsPageBloc(),
-                    child: AlbumsPage(),
-                  ),*/
                   bottomNavigationBar: BottomNavigationBar(
                     currentIndex: snapshot.data,
                     items: [
