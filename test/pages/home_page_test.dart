@@ -11,7 +11,6 @@ void main() {
 
     // Verify that appropriate widgets are visible
     expect(find.byType(BottomNavigationBar), findsOneWidget);
-//    expect(find.byType(BottomNavigationBarItem), findsNWidgets(3));
     expect(
         find.descendant(
             of: find.byType(CircleAvatar), matching: find.byType(Image)),
@@ -24,7 +23,6 @@ void main() {
     await tester.tap(find.byIcon(Icons.queue_music));
     await tester.pump();
     expect(find.byType(BottomNavigationBar), findsOneWidget);
-//    expect(find.byType(BottomNavigationBarItem), findsNWidgets(3));
     expect(find.byType(AlbumsPage), findsNothing);
     expect(find.byType(SongsPage), findsOneWidget);
     expect(find.byType(PlaylistPage), findsNothing);
@@ -33,10 +31,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.playlist_play));
     await tester.pump();
     expect(find.byType(BottomNavigationBar), findsOneWidget);
-//    expect(find.byType(BottomNavigationBarItem), findsNWidgets(3));
     expect(find.byType(AlbumsPage), findsNothing);
     expect(find.byType(SongsPage), findsNothing);
     expect(find.byType(PlaylistPage), findsOneWidget);
-
   });
 }

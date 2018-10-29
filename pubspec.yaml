@@ -23,6 +23,7 @@ dependencies:
   material_search: ^0.2.7
   shared_preferences: ^0.4.2
   rxdart:
+  mockito:
 
 dev_dependencies:
   flutter_test:
