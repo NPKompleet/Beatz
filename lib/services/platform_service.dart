@@ -10,6 +10,7 @@ class PlatformService {
   static const MethodChannel channel = MethodChannel('com.npkompleet.beatz');
   static const String _fetchAlbumMethod = 'fetchAlbums';
   static const String _fetchSongsFromAlbumMethod = 'fetchSongsFromAlbum';
+  static const String _seekMethod = 'seek';
   static const String _playSongMethod = 'play';
   static const String _positionMethod = 'position';
   static const String _songCompleteMethod = "complete";
@@ -18,7 +19,7 @@ class PlatformService {
 
   // Method handler for calls to be executed
   // on the Flutter side of the channel
-  static Future<Null> callHandler(MethodCall call) {
+  static Future<Null> callHandler(MethodCall call) async {
     switch (call.method) {
       case _songCompleteMethod:
         stopNotifier.value = "complete";
@@ -26,7 +27,6 @@ class PlatformService {
         break;
       case _positionMethod:
         int position = call.arguments;
-//        print(position);
         positionNotifier.value = position;
         break;
     }
@@ -51,7 +51,6 @@ class PlatformService {
 
   static Future<List<AudioMedia>> fetchSongsFromAlbum(int id) async {
     Map<String, int> albumInfo = {"albumId": id};
-    print("AlbumID: $id");
     String result = "";
     try {
       result =
@@ -83,19 +82,12 @@ class PlatformService {
     return result;
   }
 
-  static Future<int> getPlaybackPosition() async {
-    int result = 0;
-    try {
-      result = await channel.invokeMethod(_positionMethod);
-      print("Position was: $result");
-    } on PlatformException catch (e) {
-      print(e);
-    }
-    return result;
-  }
-
   static void reset() {
     stopNotifier.value = "";
     positionNotifier.value = 0;
+  }
+
+  static Future<Null> seekTo(int playbackPosition) async {
+    await channel.invokeMethod(_seekMethod, {"position": playbackPosition});
   }
 }

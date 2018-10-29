@@ -121,4 +121,10 @@ class _HomePageState extends State<HomePage>
   }
 
   void _onItemSelected(int index) => _bloc.pageIndex.add(index);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }

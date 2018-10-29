@@ -34,6 +34,11 @@ class CurrentPlayingBloc extends BlocBase {
   StreamSink<List<String>> get _uiSink => _uiController.sink;
   Stream<List<String>> get uiStream => _uiController.stream;
 
+  StreamController<double> _seekerController =
+      StreamController<double>.broadcast();
+  StreamSink<double> get seekTo => _seekerController.sink;
+  Stream<double> get _seek => _seekerController.stream;
+
   CurrentPlayingBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
@@ -54,6 +59,7 @@ class CurrentPlayingBloc extends BlocBase {
     print('playback started');
     _reset();
     playState.value = "play";
+    _seek.listen(_doSeek);
     PlatformService.stopNotifier.addListener(_stopAnim);
     PlatformService.positionNotifier.addListener(_getPosition);
     PlatformService.playSong(_albumSongsList[_songIndex].uri);
@@ -79,11 +85,16 @@ class CurrentPlayingBloc extends BlocBase {
     PlatformService.reset();
   }
 
+  void _doSeek(position) {
+    PlatformService.seekTo((position * _duration).floor());
+  }
+
   @override
   void dispose() {
     _listController.close();
     _playController.close();
     _uiController.close();
+    _seekerController.close();
     playState.dispose();
     songInfo.dispose();
   }

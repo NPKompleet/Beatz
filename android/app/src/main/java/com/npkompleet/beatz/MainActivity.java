@@ -38,6 +38,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private static final String CHANNEL_NAME = "com.npkompleet.beatz";
     private static final String FETCH_ALBUMS_METHOD = "fetchAlbums";
     private static final String FETCH_SONGS_FROM_ALBUM_METHOD = "fetchSongsFromAlbum";
+    private static final String SEEK_METHOD = "seek";
     private static final String PLAY_SONG_METHOD = "play";
     private static final String POSITION_METHOD = "position";
     private static final String SONG_COMPLETE_METHOD = "complete";
@@ -94,9 +95,10 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
                 HashMap<String, String> songArg= (HashMap<String, String>) call.arguments;
                 playSong(songArg.get("songUrl"));
                 break;
-//            case POSITION_METHOD:
-//                getPlayBackPosition();
-//                break;
+            case SEEK_METHOD:
+                HashMap<String, Integer> positionArg= (HashMap<String, Integer>) call.arguments;
+                seek(positionArg.get("position"));
+                break;
         }
     }
 
@@ -240,8 +242,11 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     private void getPlaybackPosition(){
         if(mPlayer.isPlaying()) {
             channel.invokeMethod(POSITION_METHOD, mPlayer.getCurrentPosition());
-//            channelResult.success(mPlayer.getCurrentPosition());
         }
+    }
+
+    private void seek(int position){
+        mPlayer.seekTo(position);
     }
 
 

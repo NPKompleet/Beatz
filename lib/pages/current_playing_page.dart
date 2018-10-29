@@ -158,7 +158,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                               value: double.parse(list.elementAt(0)),
                               min: 0.0,
                               max: list.elementAt(2) == "00:00" ? 0.0 : 1.0,
-                              onChanged: data ? (value) {} : null,
+                              onChanged: data ? (value) => _seek(value) : null,
                             ),
                             Padding(
                               padding:
@@ -285,6 +285,12 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
                           media.title,
                           style: TextStyle(fontSize: 20.0),
                         ),
+                        index == snapshot.data.length - 1
+                            ? Divider(
+                                height: 10.0,
+                                color: Colors.white70,
+                              )
+                            : Container()
                       ],
                     );
                   });
@@ -301,8 +307,6 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
     // before adding the song
     await Future.delayed(Duration(milliseconds: 1000));
     _bloc.startSong.add(0);
-//    await Future.delayed(Duration(milliseconds: 1500));
-//    print(_bloc.playState.value);
     _bloc.playState.addListener(_onPlaybackEvent);
   }
 
@@ -324,6 +328,10 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
         _recordAnimCtrl.stop();
         break;
     }
+  }
+
+  void _seek(double value) {
+    _bloc.seekTo.add(value);
   }
 
   @override
