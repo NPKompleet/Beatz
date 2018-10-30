@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:beatz/blocs/bloc_provider.dart';
-import 'package:beatz/blocs/current_playing_bloc.dart';
+import 'package:beatz/blocs/current_album_bloc.dart';
 import 'package:beatz/models/album.dart';
 import 'package:beatz/models/audio_media.dart';
 import 'package:beatz/widgets/needle_widget.dart';
@@ -9,16 +9,16 @@ import 'package:beatz/widgets/record_widget.dart';
 import 'package:beatz/widgets/song_list_clipper.dart';
 import 'package:flutter/material.dart';
 
-class CurrentPlayingPage extends StatefulWidget {
+class CurrentAlbumPage extends StatefulWidget {
   final Album album;
 
-  CurrentPlayingPage({@required this.album});
+  CurrentAlbumPage({@required this.album});
 
   @override
   _CurrentPlayingPageState createState() => _CurrentPlayingPageState();
 }
 
-class _CurrentPlayingPageState extends State<CurrentPlayingPage>
+class _CurrentPlayingPageState extends State<CurrentAlbumPage>
     with TickerProviderStateMixin {
   final double iconSize = 35.0;
   final Color iconColor = Colors.deepOrangeAccent;
@@ -27,7 +27,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
   AnimationController _recordAnimCtrl;
   OverlayState _overlayState;
   OverlayEntry _overlayEntry;
-  CurrentPlayingBloc _bloc;
+  CurrentAlbumBloc _bloc;
 
   @override
   initState() {
@@ -51,7 +51,7 @@ class _CurrentPlayingPageState extends State<CurrentPlayingPage>
 
   @override
   Widget build(BuildContext context) {
-    _bloc = BlocProvider.of<CurrentPlayingBloc>(context);
+    _bloc = BlocProvider.of<CurrentAlbumBloc>(context);
     return SafeArea(
       child: Material(
         child: Scaffold(

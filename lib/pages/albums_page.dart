@@ -1,8 +1,8 @@
 import 'package:beatz/blocs/albums_page_bloc.dart';
 import 'package:beatz/blocs/bloc_provider.dart';
-import 'package:beatz/blocs/current_playing_bloc.dart';
+import 'package:beatz/blocs/current_album_bloc.dart';
 import 'package:beatz/models/album.dart';
-import 'package:beatz/pages/current_playing_page.dart';
+import 'package:beatz/pages/current_album_page.dart';
 import 'package:beatz/widgets/record_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -80,9 +80,9 @@ class AlbumsPage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return BlocProvider<CurrentPlayingBloc>(
-          bloc: CurrentPlayingBloc(album.id),
-          child: CurrentPlayingPage(
+        return BlocProvider<CurrentAlbumBloc>(
+          bloc: CurrentAlbumBloc(album.id),
+          child: CurrentAlbumPage(
             album: album,
           ),
         );

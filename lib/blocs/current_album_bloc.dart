@@ -8,7 +8,7 @@ import 'package:beatz/utils/time_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-class CurrentPlayingBloc extends BlocBase {
+class CurrentAlbumBloc extends BlocBase {
   List<AudioMedia> _albumSongsList = [];
   int _songIndex = 0;
   int _duration = 0;
@@ -39,7 +39,7 @@ class CurrentPlayingBloc extends BlocBase {
   StreamSink<double> get seekTo => _seekerController.sink;
   Stream<double> get _seek => _seekerController.stream;
 
-  CurrentPlayingBloc(int albumId) {
+  CurrentAlbumBloc(int albumId) {
     _fetchAlbumSongs(albumId);
     _playSong.listen(_startPlaying);
     playState.addListener(_pauseAndResume);

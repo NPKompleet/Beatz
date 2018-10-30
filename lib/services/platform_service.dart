@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 class PlatformService {
-  static const MethodChannel channel = MethodChannel('com.npkompleet.beatz');
+  static const MethodChannel _channel = MethodChannel('com.npkompleet.beatz');
   static const String _fetchAlbumMethod = 'fetchAlbums';
   static const String _fetchSongsFromAlbumMethod = 'fetchSongsFromAlbum';
   static const String _seekMethod = 'seek';
@@ -37,7 +37,7 @@ class PlatformService {
   static Future<List<Album>> fetchAlbums() async {
     String result = "";
     try {
-      result = await channel.invokeMethod(_fetchAlbumMethod);
+      result = await _channel.invokeMethod(_fetchAlbumMethod);
     } on PlatformException catch (e) {
       print(e);
     }
@@ -56,7 +56,7 @@ class PlatformService {
     String result = "";
     try {
       result =
-          await channel.invokeMethod(_fetchSongsFromAlbumMethod, albumInfo);
+          await _channel.invokeMethod(_fetchSongsFromAlbumMethod, albumInfo);
       print("Songs: $result");
     } on PlatformException catch (e) {
       print(e);
@@ -72,11 +72,11 @@ class PlatformService {
   }
 
   static Future<String> playSong(String url) async {
-    channel.setMethodCallHandler(callHandler);
+    _channel.setMethodCallHandler(callHandler);
     Map<String, String> songInfo = {"songUrl": url};
     String result = "";
     try {
-      result = await channel.invokeMethod(_playSongMethod, songInfo);
+      result = await _channel.invokeMethod(_playSongMethod, songInfo);
       print("Result was: $result");
     } on PlatformException catch (e) {
       print(e);
@@ -85,15 +85,15 @@ class PlatformService {
   }
 
   static Future<Null> seekTo(int playbackPosition) async {
-    await channel.invokeMethod(_seekMethod, {"position": playbackPosition});
+    await _channel.invokeMethod(_seekMethod, {"position": playbackPosition});
   }
 
   static Future<Null> pauseSong() async {
-    await channel.invokeMethod(_pauseMethod);
+    await _channel.invokeMethod(_pauseMethod);
   }
 
   static Future<Null> resumeSong() async {
-    await channel.invokeMethod(_resumeMethod);
+    await _channel.invokeMethod(_resumeMethod);
   }
 
   static void reset() {

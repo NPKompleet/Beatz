@@ -210,6 +210,7 @@ public class MainActivity extends FlutterActivity implements LoaderManager.Loade
     }
 
     private void playSong(String uri){
+        if(mPlayer != null) mPlayer.release();
         timer = new Timer();
         mPlayer = new MediaPlayer();
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
