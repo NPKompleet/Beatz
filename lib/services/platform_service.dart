@@ -21,7 +21,7 @@ class PlatformService {
 
   // Method handler for calls to be executed
   // on the Flutter side of the channel
-  static Future<Null> callHandler(MethodCall call) async {
+  static Future<void> callHandler(MethodCall call) {
     switch (call.method) {
       case _songCompleteMethod:
         stopNotifier.value = "complete";
@@ -32,6 +32,7 @@ class PlatformService {
         positionNotifier.value = position;
         break;
     }
+    return null;
   }
 
   static Future<List<Album>> fetchAlbums() async {
@@ -84,15 +85,15 @@ class PlatformService {
     return result;
   }
 
-  static Future<Null> seekTo(int playbackPosition) async {
+  static Future<void> seekTo(int playbackPosition) async {
     await _channel.invokeMethod(_seekMethod, {"position": playbackPosition});
   }
 
-  static Future<Null> pauseSong() async {
+  static Future<void> pauseSong() async {
     await _channel.invokeMethod(_pauseMethod);
   }
 
-  static Future<Null> resumeSong() async {
+  static Future<void> resumeSong() async {
     await _channel.invokeMethod(_resumeMethod);
   }
 

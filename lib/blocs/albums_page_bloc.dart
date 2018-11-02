@@ -18,7 +18,7 @@ class AlbumsPageBloc extends BlocBase {
     _fetchAlbums();
   }
 
-  Future<Null> _fetchAlbums() async {
+  Future<void> _fetchAlbums() async {
     _albumList = await PlatformService.fetchAlbums();
     _albumListSink.add(UnmodifiableListView<Album>(_albumList));
   }

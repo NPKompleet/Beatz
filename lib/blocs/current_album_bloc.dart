@@ -45,7 +45,7 @@ class CurrentAlbumBloc extends BlocBase {
     playState.addListener(_pauseAndResume);
   }
 
-  Future<Null> _fetchAlbumSongs(int id) async {
+  Future<void> _fetchAlbumSongs(int id) async {
     _albumSongsList = await PlatformService.fetchSongsFromAlbum(id);
     _albumSongsListSink.add(UnmodifiableListView<AudioMedia>(_albumSongsList));
     songInfo.value = [
@@ -56,7 +56,7 @@ class CurrentAlbumBloc extends BlocBase {
     _durationString = await compute(TimeUtil.convertTimeToString, _duration);
   }
 
-  Future<Null> _startPlaying(data) async {
+  Future<void> _startPlaying(data) async {
     print('playback started');
     _reset();
     playState.value = "play";
